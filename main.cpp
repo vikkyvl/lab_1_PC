@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#define N 10
+#define N 1000
 #define MIN 1
 #define MAX 10
 
@@ -64,9 +64,14 @@ int main() {
     fillingMatrix();
     //printMatrix();
 
+    auto sequential_begin = std::chrono::high_resolution_clock::now();
     //std::cout << "New Matrix" << std::endl;
     sequentialCalculation();
     //printMatrix();
+    auto sequential_end = std::chrono::high_resolution_clock::now();
+
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(sequential_end - sequential_begin);
+    std::cout << elapsed.count() * 1e-9 << " s" << std::endl;
 
     return 0;
 }
