@@ -5,23 +5,37 @@
 #include <ctime>
 #include <vector>
 
-#define N 10
+#define N 1000
 #define MIN 1
 #define MAX 5
 
 int matrix[N][N];
+int initial_matrix[N][N];
 
 int getRandomNumber()
 {
     return MIN + (rand() % (MAX - MIN + 1));
 }
 
-void fillingMatrix() {
+void fillingMatrix()
+{
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)
         {
             matrix[i][j] = getRandomNumber();
+            initial_matrix[i][j] = matrix[i][j];
+        }
+    }
+}
+
+void restoringMatrix()
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            matrix[i][j] = initial_matrix[i][j];
         }
     }
 }
@@ -81,29 +95,49 @@ void printMatrix()
     }
 }
 
-int main() {
-    srand(time(NULL));
-
-    //std::cout << "Initial Matrix" << std::endl;
+void resultSequentialCalculation()
+{
     fillingMatrix();
-    //printMatrix();
 
     auto sequential_begin = std::chrono::high_resolution_clock::now();
-    //std::cout << "New Matrix" << std::endl;
     sequentialCalculation();
-    //printMatrix();
     auto sequential_end = std::chrono::high_resolution_clock::now();
 
     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(sequential_end - sequential_begin);
-    std::cout << elapsed.count() * 1e-9 << " s" << std::endl;
+    std::cout << "Time: " << elapsed.count() * 1e-9 << " s" << std::endl;
+}
 
-    //std::cout << "Initial Matrix" << std::endl;
-    fillingMatrix();
-    //printMatrix();
+void resultParallelCalculation(int physical_cores, int logical_cores)
+{
+    restoringMatrix();
+    std::vector<int> threads_N = {
+        physical_cores / 2, physical_cores, logical_cores, logical_cores * 2,
+        logical_cores * 4, logical_cores * 8, logical_cores * 16
+    };
 
-    //std::cout << "New Matrix" << std::endl;
-    parallelCalculation(4);
-    //printMatrix();
+    for(int i : threads_N)
+    {
+        auto parallel_begin = std::chrono::high_resolution_clock::now();
+        parallelCalculation(i);
+        auto parallel_end = std::chrono::high_resolution_clock::now();
+
+        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(parallel_end - parallel_begin);
+        std::cout << "Threads: " << i << " Time: " << elapsed.count() * 1e-9 << " s" << std::endl;
+    }
+}
+
+int main() {
+    srand(time(NULL));
+
+    int physical_cores = 2;
+    int logical_cores = 4;
+
+    std::cout << "\nResult of Matrix Calculation (Size: " << N << "x" << N << "):\n" << std::endl;
+    std::cout << "* Sequential: *" << std::endl;
+    resultSequentialCalculation();
+
+    std::cout << "* Parallel: *" << std::endl;
+    resultParallelCalculation(physical_cores, logical_cores);
 
     return 0;
 }
