@@ -5,7 +5,7 @@
 #include <ctime>
 #include <vector>
 
-#define N 1000
+#define N 5
 #define MIN 1
 #define MAX 5
 
@@ -102,7 +102,7 @@ void resultSequentialCalculation()
     auto sequential_begin = std::chrono::high_resolution_clock::now();
     sequentialCalculation();
     auto sequential_end = std::chrono::high_resolution_clock::now();
-
+    //printMatrix();
     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(sequential_end - sequential_begin);
     std::cout << "Time: " << elapsed.count() * 1e-9 << " s" << std::endl;
 }
@@ -117,16 +117,18 @@ void resultParallelCalculation(int physical_cores, int logical_cores)
 
     for(int i : threads_N)
     {
+        restoringMatrix();
         auto parallel_begin = std::chrono::high_resolution_clock::now();
         parallelCalculation(i);
         auto parallel_end = std::chrono::high_resolution_clock::now();
-
+        //printMatrix();
         auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(parallel_end - parallel_begin);
         std::cout << "Threads: " << i << " Time: " << elapsed.count() * 1e-9 << " s" << std::endl;
     }
 }
 
-int main() {
+int main()
+{
     srand(time(NULL));
 
     int physical_cores = 2;
