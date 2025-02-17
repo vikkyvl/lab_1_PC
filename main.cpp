@@ -3,10 +3,11 @@
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
 
-#define N 1000
+#define N 10
 #define MIN 1
-#define MAX 10
+#define MAX 5
 
 int matrix[N][N];
 
@@ -25,7 +26,7 @@ void fillingMatrix() {
     }
 }
 
-void calculatingProductOfColumn(int col)
+void calculatingProductOfColumn(const int col)
 {
     int product = 1;
 
@@ -45,7 +46,30 @@ void sequentialCalculation()
     }
 }
 
-/*void printMatrix()
+void columnsDistribution(const int thread_id, const int step)
+{
+    for(int col = thread_id; col < N; col+=step)
+    {
+        calculatingProductOfColumn(col);
+    }
+}
+
+void parallelCalculation(const int threads_N)
+{
+    std::vector<std::thread> threads(threads_N);
+
+    for(int thread_id = 0; thread_id < threads_N; thread_id++)
+    {
+        threads[thread_id] = std::thread(columnsDistribution, thread_id, threads_N);
+    }
+
+    for(int thread_id = 0; thread_id < threads_N; thread_id++)
+    {
+        threads[thread_id].join();
+    }
+}
+
+void printMatrix()
 {
     for(int row = 0; row < N; row++)
     {
@@ -55,7 +79,7 @@ void sequentialCalculation()
         }
         std::cout << std::endl;
     }
-}*/
+}
 
 int main() {
     srand(time(NULL));
@@ -72,6 +96,14 @@ int main() {
 
     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(sequential_end - sequential_begin);
     std::cout << elapsed.count() * 1e-9 << " s" << std::endl;
+
+    //std::cout << "Initial Matrix" << std::endl;
+    fillingMatrix();
+    //printMatrix();
+
+    //std::cout << "New Matrix" << std::endl;
+    parallelCalculation(4);
+    //printMatrix();
 
     return 0;
 }
