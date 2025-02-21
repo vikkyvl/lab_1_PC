@@ -1,13 +1,14 @@
 #include <iostream>
+#include <iomanip>
 #include <thread>
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
 #include <vector>
 
-#define N 5
+#define N 15000
 #define MIN 1
-#define MAX 5
+#define MAX 100
 
 int matrix[N][N];
 int initial_matrix[N][N];
@@ -107,7 +108,7 @@ void resultSequentialCalculation()
     std::cout << "Time: " << elapsed.count() * 1e-9 << " s" << std::endl;
 }
 
-void resultParallelCalculation(int physical_cores, int logical_cores)
+void resultParallelCalculation(const int physical_cores, const int logical_cores)
 {
     restoringMatrix();
     std::vector<int> threads_N = {
@@ -115,7 +116,7 @@ void resultParallelCalculation(int physical_cores, int logical_cores)
         logical_cores * 4, logical_cores * 8, logical_cores * 16
     };
 
-    for(int i : threads_N)
+    for(const int i : threads_N)
     {
         restoringMatrix();
         auto parallel_begin = std::chrono::high_resolution_clock::now();
@@ -137,8 +138,7 @@ int main()
     std::cout << "\nResult of Matrix Calculation (Size: " << N << "x" << N << "):\n" << std::endl;
     std::cout << "* Sequential: *" << std::endl;
     resultSequentialCalculation();
-
-    std::cout << "* Parallel: *" << std::endl;
+    std::cout << "\n* Parallel: *" << std::endl;
     resultParallelCalculation(physical_cores, logical_cores);
 
     return 0;
